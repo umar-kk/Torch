@@ -16,10 +16,20 @@ public class StrobeController implements Runnable {
 
     public volatile boolean requestStop = false;
     public volatile boolean isRunning = false;
-    public volatile LED_Light controller;
+    public volatile ObservableHorizontalScrollView controller;
+    public volatile LED_Light controller2;
     public int freq;
     public volatile String errorMessage = "";
+    public int frequency;
 
+    public void setFreq(int freq) {
+        this.freq = freq;
+    }
+
+    public int getFreq() {
+
+        return freq;
+    }
 
     @Override
     public void run() {
@@ -36,6 +46,9 @@ public class StrobeController implements Runnable {
 
         paramsOn.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
         paramsOff.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+
+        frequency = freq;
+
 
         while (!requestStop) {
             if (freq == 0) {
