@@ -1,8 +1,12 @@
 package com.example.umarkk.torch;
 
+import android.annotation.TargetApi;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -30,7 +34,7 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
 //    private static final int SWIPE_VELOCITY_THRESHOLD = 1;
     ArrayList<Integer> lights = new ArrayList<>();
     RelativeLayout container;
-
+    private int brightness = 100;
 
 
     @Override
@@ -55,6 +59,7 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
         lights.add(R.drawable.blue_light);
         lights.add(R.drawable.green_light);
         lights.add(R.drawable.purple_light);
+        lights.add(R.drawable.red_light);
         lights.add(R.drawable.yellow_light);
         lights.add(R.drawable.white_light);
 
@@ -69,6 +74,24 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
         });
 
     }
+
+
+    public void setBrightness(int brightness){
+
+        //constrain the value of brightness
+        if(brightness < 25)
+            brightness = 25;
+        else if(brightness > 255)
+            brightness = 255;
+
+
+        ContentResolver cResolver = this.getApplicationContext().getContentResolver();
+        Settings.System.putInt(cResolver, Settings.System.SCREEN_BRIGHTNESS, brightness);
+
+    }
+
+
+
 
 
     public static int getScreenWidth() {
@@ -87,7 +110,7 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
         int width = getScreenWidth();
         int height = getScreenHeight();
         Random r = new Random();
-        int index = r.nextInt(5);
+        int index = r.nextInt(6);
 
         try {
             float diffY = e2.getY() - e1.getY();
@@ -96,7 +119,7 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
             if (Math.abs(diffX) > Math.abs(diffY)) {
 
 
-                if (diffX > width*0.5) {
+                if (diffX > width*0.35) {
 
                     //On Swipe Right
                     bulb.setImageResource(R.drawable.white_bulb);
@@ -104,7 +127,7 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
 
                     return true;
 
-                } else if (diffX < (-1)*width*0.5) {
+                } else if (diffX < (-1)*width*0.35) {
 
                     //On Swipe Left
                     bulb.setImageResource(R.drawable.white_bulb);
@@ -120,24 +143,28 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
                 if (diffY > 0) {
 
                     //On Swipe Down
-                    diffY = diffY /10000 ;
+                    diffY = diffY /7000 ;
                     lightOpacity = lightOpacity - diffY;
+                  //  brightness = brightness - Math.round(diffY);
                     if (lightOpacity < 0) {
                         lightOpacity = minLightOpacity;
                     }
                     light.setAlpha(lightOpacity);
+                    setBrightness((int)lightOpacity*255);
 
                     return true;
 
                 } else {
 
                     //On Swipe Up
-                    diffY = diffY / 10000;
+                    diffY = diffY / 7000;
                     lightOpacity = lightOpacity + Math.abs(diffY);
+                  //  brightness = brightness + Math.round(diffY);
                     if (lightOpacity > 1) {
                         lightOpacity = maxLightOpacity;
                     }
                     light.setAlpha(lightOpacity);
+                    setBrightness((int)lightOpacity*255);
 
                     return true;
                 }
