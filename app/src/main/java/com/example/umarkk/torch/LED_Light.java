@@ -115,8 +115,8 @@ public class LED_Light extends AppCompatActivity {
         strobeController2.controller2 = this;
 
         // Set Power Button Off when starting the activity
-        powerButton.setBackgroundResource(R.drawable.powerbutton_off);
-        ledActivityButton.setBackgroundResource(R.drawable.led_button_on);
+        powerButton.setBackgroundResource(R.drawable.power_button_off);
+        ledActivityButton.setBackgroundResource(R.drawable.led_light);
 
 
 //        if (!strobeController.isRunning) {
@@ -166,14 +166,14 @@ public class LED_Light extends AppCompatActivity {
 
         if (powerButton.isChecked()) {
 
-            powerButton.setBackgroundResource(R.drawable.powerbutton_on);
+            powerButton.setBackgroundResource(R.drawable.power_button_on);
             thread = new Thread(strobeController2);
             thread.start();
 
         } else {
 
             strobeController2.requestStop = true;
-            powerButton.setBackgroundResource(R.drawable.powerbutton_off);
+            powerButton.setBackgroundResource(R.drawable.power_button_off);
         }
 
 
@@ -184,14 +184,14 @@ public class LED_Light extends AppCompatActivity {
                 mediaPlayer.start();
                 if (powerButton.isChecked()) {
 
-                    powerButton.setBackgroundResource(R.drawable.powerbutton_on);
+                    powerButton.setBackgroundResource(R.drawable.power_button_on);
                     thread = new Thread(strobeController2);
                     thread.start();
 
                 } else {
 
                     strobeController2.requestStop = true;
-                    powerButton.setBackgroundResource(R.drawable.powerbutton_off);
+                    powerButton.setBackgroundResource(R.drawable.power_button_off);
                 }
             }
         });

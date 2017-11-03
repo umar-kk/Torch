@@ -50,7 +50,7 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
         container = (RelativeLayout) findViewById(R.id.mainContainer);
 
         gestureDetector = new GestureDetector(ScreenBulbLight.this, ScreenBulbLight.this);
-        bulbActivityButton.setBackgroundResource(R.drawable.bulb_button_on);
+        bulbActivityButton.setBackgroundResource(R.drawable.bulb_lite);
 
         light.setAlpha(lightOpacity);
 
