@@ -2,7 +2,6 @@ package com.example.umarkk.torch;
 
 import android.hardware.Camera;
 
-
 public class StrobeController implements Runnable {
 
     public static StrobeController getInstance() {
@@ -27,7 +26,6 @@ public class StrobeController implements Runnable {
     }
 
     public int getFreq() {
-
         return freq;
     }
 
@@ -57,7 +55,6 @@ public class StrobeController implements Runnable {
                 continue;
             }
             try {
-
                 camera.setParameters(paramsOn);
                 camera.startPreview();
                 Thread.sleep(900 - freq * 100);
@@ -65,20 +62,16 @@ public class StrobeController implements Runnable {
                 camera.setParameters(paramsOff);
                 camera.stopPreview();
                 Thread.sleep(900 - freq * 100);
-
-            } catch (InterruptedException ex) {
-            } catch (RuntimeException ex) {
+            } catch (Exception ex) {
                 requestStop = true;
                 errorMessage = "Error setting camera flash status. Your device may be unsupported.";
+                ex.printStackTrace();
             }
         }
         camera.setParameters(paramsOff);
-
         camera.release();
 
         isRunning = false;
         requestStop = false;
-
-
     }
 }

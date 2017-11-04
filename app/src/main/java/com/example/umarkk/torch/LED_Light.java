@@ -43,12 +43,10 @@ public class LED_Light extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
     //private static final int MY_PERMISSIONS_REQUEST_WRITE_SETTINGS = 2;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.light_led);
-
 
         // Here, thisActivity is the current activity
         if (ContextCompat.checkSelfPermission(LED_Light.this,
@@ -64,9 +62,7 @@ public class LED_Light extends AppCompatActivity {
             // result of the request.
         }
 
-
 //        checkPermission();
-
 
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 //            if (Settings.System.canWrite(ScreenBulbLight)
@@ -118,7 +114,6 @@ public class LED_Light extends AppCompatActivity {
         powerButton.setBackgroundResource(R.drawable.power_button_off);
         ledActivityButton.setBackgroundResource(R.drawable.led_light);
 
-
 //        if (!strobeController.isRunning) {
 //            try {
 //                camera = Camera.open();
@@ -163,19 +158,14 @@ public class LED_Light extends AppCompatActivity {
         frequency = strobeController2.getFreq();
         frequencyView.setText(String.valueOf(frequency));
 
-
         if (powerButton.isChecked()) {
-
             powerButton.setBackgroundResource(R.drawable.power_button_on);
             thread = new Thread(strobeController2);
             thread.start();
-
         } else {
-
             strobeController2.requestStop = true;
             powerButton.setBackgroundResource(R.drawable.power_button_off);
         }
-
 
         // When Click on Power Button
         powerButton.setOnClickListener(new View.OnClickListener() {
@@ -183,13 +173,10 @@ public class LED_Light extends AppCompatActivity {
                 // Perform action on clicks
                 mediaPlayer.start();
                 if (powerButton.isChecked()) {
-
                     powerButton.setBackgroundResource(R.drawable.power_button_on);
                     thread = new Thread(strobeController2);
                     thread.start();
-
                 } else {
-
                     strobeController2.requestStop = true;
                     powerButton.setBackgroundResource(R.drawable.power_button_off);
                 }
@@ -346,11 +333,9 @@ public class LED_Light extends AppCompatActivity {
         super.onRestart();
     }
 
-
     @Override
     protected void onStop() {
         super.onStop();
-
         // on stop release the camera
         if (camera != null) {
             camera.release();
@@ -362,5 +347,4 @@ public class LED_Light extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
     }
-
 }
