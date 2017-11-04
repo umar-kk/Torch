@@ -1,9 +1,9 @@
 package com.example.umarkk.torch;
 
+import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -30,8 +30,11 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
     private float minLightOpacity = 0.0f;
     private float maxLightOpacity = 1.0f;
     private float lightOpacity = 0.4f;
+//    private static final int SWIPE_THRESHOLD = 1;
+//    private static final int SWIPE_VELOCITY_THRESHOLD = 1;
     ArrayList<Integer> lights = new ArrayList<>();
     RelativeLayout container;
+    private int brightness = 100;
 
 
     @Override
@@ -39,35 +42,20 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_screen_bulb_light);
 
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!Settings.System.canWrite(getApplicationContext())) {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:" + getPackageName()));
-                startActivityForResult(intent, 200);
-            }
-        }
-
-        // Receiving Intent of LED_Light Activity
         Intent ledActivityintent = getIntent();
-
-        //Initialization
         light = (ImageView) findViewById(R.id.light_image);
         bulb = (ImageView) findViewById(R.id.bulb_image);
         ledActivityButton = (ImageButton) findViewById(R.id.led_light_activity);
         bulbActivityButton = (ImageButton) findViewById(R.id.screen_bulb_activity);
         container = (RelativeLayout) findViewById(R.id.mainContainer);
 
-        // Making Object of GestureDetector
         gestureDetector = new GestureDetector(ScreenBulbLight.this, ScreenBulbLight.this);
-
-        // Setting bulbActivityButton on bulb_lite when Activity is start
         bulbActivityButton.setBackgroundResource(R.drawable.bulb_lite);
 
-        // Setting Default Opacity of light
         light.setAlpha(lightOpacity);
 
 
-        //Adding Addresses of light images in ArrayList of lights
+        //Adding adresses of light images in ArrayList of lights
         lights.add(R.drawable.blue_light);
         lights.add(R.drawable.green_light);
         lights.add(R.drawable.purple_light);
@@ -75,7 +63,7 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
         lights.add(R.drawable.yellow_light);
         lights.add(R.drawable.white_light);
 
-        // Making Intent for Opening LED_Light Activity
+
         ledActivityButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -87,26 +75,29 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
 
     }
 
-    // Method to Set Brightness of the Screen
-    private void setBrightness(int brightness) {
+
+    public void setBrightness(int brightness){
 
         //constrain the value of brightness
-//        if(brightness < 25)
-//            brightness = 25;
-//        else if(brightness > 255)
-//            brightness = 255;
+        if(brightness < 25)
+            brightness = 25;
+        else if(brightness > 255)
+            brightness = 255;
+
 
         ContentResolver cResolver = this.getApplicationContext().getContentResolver();
         Settings.System.putInt(cResolver, Settings.System.SCREEN_BRIGHTNESS, brightness);
 
     }
 
-    // Methot to get the total Width of Screen
+
+
+
+
     public static int getScreenWidth() {
         return Resources.getSystem().getDisplayMetrics().widthPixels;
     }
 
-    // Methot to get the total Height of Screen
     public static int getScreenHeight() {
         return Resources.getSystem().getDisplayMetrics().heightPixels;
     }
@@ -115,7 +106,9 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 
+
         int width = getScreenWidth();
+        int height = getScreenHeight();
         Random r = new Random();
         int index = r.nextInt(6);
 
@@ -125,7 +118,8 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
 
             if (Math.abs(diffX) > Math.abs(diffY)) {
 
-                if (diffX > width * 0.35) {
+
+                if (diffX > width*0.35) {
 
                     //On Swipe Right
                     bulb.setImageResource(R.drawable.white_bulb);
@@ -133,136 +127,59 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
 
                     return true;
 
-                } else if (diffX < (-1) * width * 0.35) {
+                } else if (diffX < (-1)*width*0.35) {
 
                     //On Swipe Left
                     bulb.setImageResource(R.drawable.white_bulb);
                     light.setImageResource(lights.get(index));
 
                     return true;
+
                 }
 
             } else {
 
+
                 if (diffY > 0) {
 
                     //On Swipe Down
-                    diffY = diffY / 4000;
+                    diffY = diffY /7000 ;
                     lightOpacity = lightOpacity - diffY;
-
+                  //  brightness = brightness - Math.round(diffY);
                     if (lightOpacity < 0) {
                         lightOpacity = minLightOpacity;
                     }
                     light.setAlpha(lightOpacity);
-
-                    // Setting Screen Brightness Values
-                    if (lightOpacity == 0) {
-
-                        setBrightness(0);
-
-                    }else if (lightOpacity > 0 && lightOpacity <= 0.1) {
-
-                        setBrightness(25);
-
-                    } else if (lightOpacity > 0.1 && lightOpacity <= 0.2) {
-
-                        setBrightness(55);
-
-                    } else if (lightOpacity > 0.2 && lightOpacity <= 0.3) {
-
-                        setBrightness(80);
-
-                    } else if (lightOpacity > 0.3 && lightOpacity <= 0.4) {
-
-                        setBrightness(110);
-
-                    } else if (lightOpacity > 0.4 && lightOpacity <= 0.5) {
-
-                        setBrightness(145);
-
-                    } else if (lightOpacity > 0.5 && lightOpacity <= 0.6) {
-
-                        setBrightness(180);
-
-                    } else if (lightOpacity > 0.6 && lightOpacity <= 0.7) {
-
-                        setBrightness(210);
-
-                    } else if (lightOpacity > 0.7 && lightOpacity <= 0.8) {
-
-                        setBrightness(235);
-
-                    } else if (lightOpacity > 0.8 && lightOpacity <= 1) {
-
-                        setBrightness(255);
-                    }
+                    setBrightness((int)lightOpacity*255);
 
                     return true;
 
                 } else {
 
                     //On Swipe Up
-                    diffY = diffY / 4000;
+                    diffY = diffY / 7000;
                     lightOpacity = lightOpacity + Math.abs(diffY);
-
+                  //  brightness = brightness + Math.round(diffY);
                     if (lightOpacity > 1) {
                         lightOpacity = maxLightOpacity;
                     }
-
                     light.setAlpha(lightOpacity);
-
-                    // Setting Screen Brightness Values
-                    if (lightOpacity == 0) {
-
-                        setBrightness(0);
-
-                    }else if (lightOpacity > 0 && lightOpacity <= 0.1) {
-
-                        setBrightness(25);
-
-                    } else if (lightOpacity > 0.1 && lightOpacity <= 0.2) {
-
-                        setBrightness(55);
-
-                    } else if (lightOpacity > 0.2 && lightOpacity <= 0.3) {
-
-                        setBrightness(80);
-
-                    } else if (lightOpacity > 0.3 && lightOpacity <= 0.4) {
-
-                        setBrightness(110);
-
-                    } else if (lightOpacity > 0.4 && lightOpacity <= 0.5) {
-
-                        setBrightness(145);
-
-                    } else if (lightOpacity > 0.5 && lightOpacity <= 0.6) {
-
-                        setBrightness(180);
-
-                    } else if (lightOpacity > 0.6 && lightOpacity <= 0.7) {
-
-                        setBrightness(210);
-
-                    } else if (lightOpacity > 0.7 && lightOpacity <= 0.8) {
-
-                        setBrightness(235);
-
-                    } else if (lightOpacity > 0.8 && lightOpacity <= 1) {
-
-                        setBrightness(255);
-                    }
+                    setBrightness((int)lightOpacity*255);
 
                     return true;
                 }
+
+
             }
 
         } catch (Exception exception) {
 
             exception.printStackTrace();
+
         }
 
         return true;
+
     }
 
     @Override
@@ -312,13 +229,10 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
     }
 
 
-    // When Activity in Resume State
-
     @Override
     protected void onResume() {
         super.onResume();
 
-        //Setting Full Screen View for App
         View decorView = getWindow().getDecorView();
         // Hide the status bar.
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
@@ -333,12 +247,15 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
     @Override
     protected void onPause() {
         super.onPause();
+
     }
+
 
     @Override
     protected void onRestart() {
         super.onRestart();
     }
+
 
     @Override
     protected void onStop() {
@@ -350,3 +267,5 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
         super.onDestroy();
     }
 }
+
+
