@@ -3,20 +3,21 @@ package com.example.umarkk.torch;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.view.GestureDetector;
+import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.view.GestureDetector.OnGestureListener;
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
 import java.util.Random;
-
 
 public class ScreenBulbLight extends AppCompatActivity implements OnGestureListener {
 
@@ -28,7 +29,7 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
     private float minLightOpacity = 0.0f;
     private float maxLightOpacity = 1.0f;
     private float lightOpacity = 0.4f;
-//    private static final int SWIPE_THRESHOLD = 1;
+    //    private static final int SWIPE_THRESHOLD = 1;
 //    private static final int SWIPE_VELOCITY_THRESHOLD = 1;
     ArrayList<Integer> lights = new ArrayList<>();
     RelativeLayout container;
@@ -70,13 +71,22 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
 
     }
 
+    public void setBrightness(int brightness) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.System.canWrite(getApplicationContext())) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.parse("package:" + getPackageName()));
+                startActivityForResult(intent, 200);
+            } else
+                setBrightnessTask();
+        } else
+            setBrightnessTask();
+    }
 
-    public void setBrightness(int brightness){
-
+    private void setBrightnessTask() {
         //constrain the value of brightness
-        if(brightness < 25)
+        if (brightness < 25)
             brightness = 25;
-        else if(brightness > 255)
+        else if (brightness > 255)
             brightness = 255;
 
         ContentResolver cResolver = this.getApplicationContext().getContentResolver();
@@ -103,13 +113,13 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
             float diffX = e2.getX() - e1.getX();
 
             if (Math.abs(diffX) > Math.abs(diffY)) {
-                if (diffX > width*0.35) {
+                if (diffX > width * 0.35) {
                     //On Swipe Right
                     bulb.setImageResource(R.drawable.white_bulb);
                     light.setImageResource(lights.get(index));
 
                     return true;
-                } else if (diffX < (-1)*width*0.35) {
+                } else if (diffX < (-1) * width * 0.35) {
                     //On Swipe Left
                     bulb.setImageResource(R.drawable.white_bulb);
                     light.setImageResource(lights.get(index));
@@ -119,26 +129,26 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
             } else {
                 if (diffY > 0) {
                     //On Swipe Down
-                    diffY = diffY /7000 ;
+                    diffY = diffY / 7000;
                     lightOpacity = lightOpacity - diffY;
-                  //  brightness = brightness - Math.round(diffY);
+                    //  brightness = brightness - Math.round(diffY);
                     if (lightOpacity < 0) {
                         lightOpacity = minLightOpacity;
                     }
                     light.setAlpha(lightOpacity);
-                    setBrightness((int)lightOpacity*255);
+                    setBrightness((int) lightOpacity * 255);
 
                     return true;
                 } else {
                     //On Swipe Up
                     diffY = diffY / 7000;
                     lightOpacity = lightOpacity + Math.abs(diffY);
-                  //  brightness = brightness + Math.round(diffY);
+                    //  brightness = brightness + Math.round(diffY);
                     if (lightOpacity > 1) {
                         lightOpacity = maxLightOpacity;
                     }
                     light.setAlpha(lightOpacity);
-                    setBrightness((int)lightOpacity*255);
+                    setBrightness((int) lightOpacity * 255);
 
                     return true;
                 }
@@ -195,7 +205,6 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
         return true;
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -217,12 +226,10 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
 
     }
 
-
     @Override
     protected void onRestart() {
         super.onRestart();
     }
-
 
     @Override
     protected void onStop() {
