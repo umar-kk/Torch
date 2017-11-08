@@ -1,6 +1,8 @@
 package com.example.umarkk.torch;
 
+import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -8,6 +10,7 @@ import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.provider.Settings.System;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
@@ -16,6 +19,10 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -33,6 +40,8 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
     private ArrayList<Integer> lights = new ArrayList();
     private float maxLightOpacity = 1.0f;
     private float minLightOpacity = 0.0f;
+    private AdView mAdView;
+    private InterstitialAd mInterstitial;
 
 
     @Override
@@ -48,6 +57,13 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
 
         // Receiving Intent from LED_Light Activity
         Intent ledActivityintent = getIntent();
+
+
+        mAdView = (AdView) findViewById(R.id.adView);
+        mAdView.setAdListener(new ToastAdListener(this));
+        AdRequest adRequest = new AdRequest.Builder().build();
+
+        mAdView.loadAd(adRequest);
 
         // Initialization
         light = (ImageView) findViewById(R.id.light_image);
@@ -78,6 +94,10 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
                 Intent ledIntent = new Intent(ScreenBulbLight.this, LED_Light.class);
                 startActivity(ledIntent);
                 finish();
+
+                if (mInterstitial.isLoaded()){
+                    mInterstitial.show();
+                }
             }
         });
 
@@ -319,6 +339,27 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
         // Hide the status bar.
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
+
+
+        mInterstitial = new InterstitialAd(this);
+        mInterstitial.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
+        mInterstitial.setAdListener(new ToastAdListener(this){
+            @Override
+            public void onAdFailedToLoad(int errorCode) {
+                super.onAdFailedToLoad(errorCode);
+
+            }
+
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+
+            }
+        });
+
+        AdRequest aq = new AdRequest.Builder().build();
+        mInterstitial.loadAd(aq);
+
     }
 
     @Override
@@ -346,6 +387,46 @@ public class ScreenBulbLight extends AppCompatActivity implements OnGestureListe
     protected void onDestroy() {
         super.onDestroy();
     }
+
+    @Override
+    public void onBackPressed() {
+
+        AlertDialog.Builder alert = new AlertDialog.Builder(ScreenBulbLight.this);
+        alert.setTitle("Rate Us:");
+        alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                Uri uri = Uri.parse("market://details?id=" + getPackageName());
+                Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
+                try {
+                    startActivity(goToMarket);
+                } catch (ActivityNotFoundException e) {
+                    startActivity(new Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("http://play.google.com/store/apps/details?id="
+                                    + getPackageName())));
+                }
+
+                dialog.dismiss();
+                finish();
+            }
+        });
+
+        alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                finish();
+            }
+        });
+        alert.create();
+        alert.show();
+
+    }
+
 }
 
 

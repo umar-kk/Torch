@@ -1,6 +1,7 @@
 package com.example.umarkk.torch;
 
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.util.AttributeSet;
 import android.widget.HorizontalScrollView;
 
@@ -8,6 +9,9 @@ public class ObservableHorizontalScrollView extends HorizontalScrollView {
 
     private int frequency;
     private StrobeController strobeController;
+    private MediaPlayer mediaPlayer;
+    private Context context;
+
 
     public ObservableHorizontalScrollView(Context context) {
         this(context, null, 0);

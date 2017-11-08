@@ -2,18 +2,27 @@ package com.example.umarkk.torch;
 
 
 import android.Manifest;
+import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ToggleButton;
+
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 
 
 public class LED_Light extends AppCompatActivity {
@@ -28,6 +37,8 @@ public class LED_Light extends AppCompatActivity {
     private ImageView sosView;
     private StrobeController strobeController2;
     private Thread thread;
+    private AdView mAdView;
+    private InterstitialAd mInterstitial;
 
 
     @Override
@@ -55,6 +66,13 @@ public class LED_Light extends AppCompatActivity {
         // Receiving Intent from ScreenBulbLight Activity
         Intent bulbActivityIntent = getIntent();
 
+        mAdView = (AdView) findViewById(R.id.adView);
+        mAdView.setAdListener(new ToastAdListener(this));
+        AdRequest adRequest = new AdRequest.Builder().build();
+
+        mAdView.loadAd(adRequest);
+
+
         // Initialization
         slider = (ImageView) findViewById(R.id.slider);
         sosView = (ImageView) findViewById(R.id.sos_view);
@@ -65,6 +83,25 @@ public class LED_Light extends AppCompatActivity {
 
         strobeController2 = StrobeController.getInstance();
         strobeController2.controller2 = this;
+
+        ObservableHorizontalScrollView obj = new ObservableHorizontalScrollView(this);
+
+        slider.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        mediaPlayer.start();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        mediaPlayer.pause();
+                        break;
+                }
+
+                return true;
+            }
+        });
 
         // Setting PowerButton, ledActivityButton and sos_view when starting the activity
         powerButton.setBackgroundResource(R.drawable.power_button_off);
@@ -106,6 +143,10 @@ public class LED_Light extends AppCompatActivity {
                     strobeController2.requestStop = true;
                     powerButton.setBackgroundResource(R.drawable.power_button_off);
                     sosView.setBackgroundResource(R.drawable.sos_dark);
+
+                    if (mInterstitial.isLoaded()){
+                        mInterstitial.show();
+                    }
                 }
             }
         });
@@ -115,8 +156,13 @@ public class LED_Light extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent bulbIntent = new Intent(LED_Light.this, ScreenBulbLight.class);
+
                 startActivity(bulbIntent);
                 finish();
+
+                if (mInterstitial.isLoaded()){
+                    mInterstitial.show();
+                }
             }
         });
 
@@ -162,6 +208,46 @@ public class LED_Light extends AppCompatActivity {
 
 
     @Override
+    public void onBackPressed() {
+
+        AlertDialog.Builder alert = new AlertDialog.Builder(LED_Light.this);
+        alert.setTitle("Rate Us:");
+        alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                Uri uri = Uri.parse("market://details?id=" + getPackageName());
+                Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
+                try {
+                    startActivity(goToMarket);
+                } catch (ActivityNotFoundException e) {
+                    startActivity(new Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("http://play.google.com/store/apps/details?id="
+                                    + getPackageName())));
+                }
+
+                dialog.dismiss();
+                finish();
+            }
+        });
+
+        alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                finish();
+            }
+        });
+        alert.create();
+        alert.show();
+
+    }
+
+
+    @Override
     protected void onResume() {
         super.onResume();
 
@@ -170,6 +256,27 @@ public class LED_Light extends AppCompatActivity {
         // Hide the status bar.
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
+
+
+        mInterstitial = new InterstitialAd(this);
+        mInterstitial.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
+        mInterstitial.setAdListener(new ToastAdListener(this){
+            @Override
+            public void onAdFailedToLoad(int errorCode) {
+                super.onAdFailedToLoad(errorCode);
+
+            }
+
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+
+            }
+        });
+
+        AdRequest aq = new AdRequest.Builder().build();
+        mInterstitial.loadAd(aq);
+
     }
 
     @Override
